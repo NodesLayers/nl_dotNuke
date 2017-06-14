@@ -1,0 +1,87 @@
+set cut_paste_input [stack 0]
+version 10.0 v4
+BackdropNode {
+ inputs 0
+ name BackdropNode205
+ tile_color 0xf58f5800
+ label "GITS \nscanned grain\n"
+ note_font_size 42
+ selected true
+ xpos 307
+ ypos 358
+ bdwidth 395
+ bdheight 212
+}
+Dot {
+ inputs 0
+ name Dot603
+ selected true
+ xpos 204
+ ypos 11
+}
+Dot {
+ name Dot604
+ selected true
+ xpos 204
+ ypos 259
+}
+push $cut_paste_input
+Dot {
+ name Dot605
+ selected true
+ xpos 452
+ ypos 15
+}
+Dot {
+ name Dot606
+ selected true
+ xpos 452
+ ypos 204
+}
+set Na893dc00 [stack 0]
+Shuffle {
+ alpha black
+ name Shuffle155
+ selected true
+ xpos 314
+ ypos 206
+}
+Difference {
+ inputs 2
+ gain 113
+ name Difference3
+ selected true
+ xpos 314
+ ypos 255
+}
+Blur {
+ channels rgba
+ size 2
+ crop false
+ name Blur95
+ selected true
+ xpos 314
+ ypos 293
+}
+push $Na893dc00
+ShuffleCopy {
+ inputs 2
+ name ShuffleCopy60
+ selected true
+ xpos 424
+ ypos 293
+}
+ScannedGrain {
+ fullGrain Z:/FILMS/dw01_gits/source/grainPlates/v3/2104x1136/E_alexa_grain_scale_v4.####.dpx
+ fullGrain.first_frame 1001
+ fullGrain.last_frame 1100
+ offset 0.498
+ amount {14.4 13.1 7.4}
+ saturation 0.78
+ use_precomputed false
+ low_clip 0.079
+ name ScannedGrain5
+ selected true
+ xpos 424
+ ypos 515
+}
