@@ -1,10 +1,12 @@
 import nuke
 import os
 
+myVersion = "v1.0"
 
-
-def setWriteNode():
+def ilmExporter():
+    print ""
     print "----------- setWrite -----------"
+    print "----------- "+myVersion+" -----------"
 
     n = nuke.selectedNode()
     
@@ -12,8 +14,8 @@ def setWriteNode():
     if nuke.root().name() == "Root":
         nuke.message("You need to save your script properly before continuing!")
         
-    if n.Class() != "Write":
-        nuke.message("This only works on Write nodes... duh...!")
+#    if (n.Class() != "Write") or (n.Class() != "DeepWrite"):
+#        nuke.message("This only works on Write nodes... duh...!")
         
         
 
@@ -50,17 +52,21 @@ def setWriteNode():
     scriptVersion = scriptVersion[-1]
     scriptVersion = str.split(scriptVersion,".")
     scriptVersion = scriptVersion[0]
-    print "Found Nuke script version to be "+scriptVersion
+    print "Scriptversion: "+scriptVersion
 
 
     ## PANEL
-    p = nuke.Panel('Set Write Node')    
+    p = nuke.Panel('ILM EXPORTER '+myVersion)    
     p.addEnumerationPulldown('Show:', "RPO_01")
-    p.addEnumerationPulldown('Vendor:', 'DD ILM')
-    p.addEnumerationPulldown('Context:', 'shot library plate')
-    p.addEnumerationPulldown('Layer Type:', 'GFX slapcomp_MOV GFX_MOV slapcomp_EXR GFX_EXR')
-    p.addSingleLineInput('Layer:', '')
-    p.addEnumerationPulldown('mergeOp:', 'over plus screen atop average color-burn color-dodge conjoint-over copy difference disjoint-over divide exclusion from geometric hard-light hypot in mask matte max min minus multiply out overlay soft-light stencil under xor')
+    p.addEnumerationPulldown('Vendor:', 'ILM')
+    p.addEnumerationPulldown('Context:', 'shot')
+    p.addEnumerationPulldown('Layer Type:', 'GFX slapcomp_EXR slapcomp_MOV GFX_EXR GFX_MOV')
+    p.addSingleLineInput('assetname.taskname:', '')
+    p.addSingleLineInput('Take number:', '')
+    p.addSingleLineInput('Pass (layer):', '')
+    p.addSingleLineInput('Extra (optional):', '')
+    p.addSingleLineInput('Version override (optional):', '')
+#    p.addEnumerationPulldown('mergeOp:', 'over plus screen atop average color-burn color-dodge conjoint-over copy difference disjoint-over divide exclusion from geometric hard-light hypot in mask matte max min minus multiply out overlay soft-light stencil under xor')
 
 
 
@@ -74,138 +80,98 @@ def setWriteNode():
     vendor = p.value("Vendor:")
     context = p.value("Context:")
     layerType = p.value("Layer Type:")
-    layer = p.value("Layer:")
-    mergeOp = p.value("mergeOp:")
+    assetname_taskname = p.value("assetname.taskname:")
+    if not assetname_taskname:
+        assetname_taskname = assetName+"."+taskName
+    assetname_taskname = assetname_taskname.replace("_" , ".")
+    take = p.value("Take number:")
+    layer = p.value("Pass (layer):")
+    extra = p.value("Extra (optional):")
+    versionOverride = p.value("Version override (optional):")
 
 
 
+    #### Export base path
+    fp = os.path.join(basepath, show, "sequences",sequence, sequence+"_"+shot, "nuke", "__nk", "__OUTPUT")
+    fp = os.path.join(fp, sequence+"."+shot)
+    if assetname_taskname:
+        fp = os.path.join(fp+"."+assetname_taskname)
+    fp = os.path.join(fp+".export."+scriptVersion)
+    fp = os.path.normpath(fp)
+    fp = fp.replace("\\" , '/')
+    #print fp
+
+
+    #### File basename
+    fn = sequence+"."+shot
+    if assetname_taskname:
+        fn = fn+"."+assetname_taskname
+    if take:
+        fn = fn+".t"+take
+    if layer:
+        fn = fn+"."+layer
+    if extra:
+        fn = fn+"."+extra
+    if versionOverride:
+        fn = fn+".v"+versionOverride
+    else:
+        fn = fn+"."+scriptVersion
+    #print "Export filename: "+fn
+
+
+    #### Export filePaths
+    if layerType == "GFX":
+        fp = os.path.join(fp, fn, fn+".%04d.exr")
+
+
+    if layerType == "slapcomp_EXR":
+        fp = os.path.join(fp, "_exr", "slapcomp", fn+".%04d.exr")
+
+    if layerType == "GFX_EXR":
+        fp = os.path.join(fp, "_exr", "gfx", fn+".%04d.exr")
+
+    if layerType == "slapcomp_MOV":
+        fp = os.path.join(fp, "_mov", fn+".slapcomp.mov")
+
+    if layerType == "GFX_MOV":
+        fp = os.path.join(fp, "_mov", fn+".GFX.mov")
+
+    
+                    
     ## Set WriteNode
     n = nuke.selectedNode()
     n = nuke.toNode(n.name())
-
-
-    if context != "plate":    
-        #### Basepath for Shotgun Export
-        baseFolder = basepath+show+"/sequences/"+sequence+"/"+sequence+"_"+shot+"/aftereffects/__aep/__OUTPUT/export/"+sequence+"_"+shot+"_"+assetName+"_"+taskName+"_"+scriptVersion
-
-
-
-
-    #### FILE PROFILES
-
-    if vendor == "DD":
-        if context == "shot":
-            if layerType == "GFX":
-                writeFile = baseFolder+"/"+layer+"/"+sequence+"_"+shot+"_"+assetName+"_"+taskName+"_layer_"+layer+"_"+mergeOp+"_"+scriptVersion+".%04d.exr"
-            
-            if layerType == "slapcomp_MOV":
-                writeFile = baseFolder+"/_MOV/"+sequence+"_"+shot+"_"+assetName+"_"+taskName+"_slapcomp_"+scriptVersion+".mov"
-
-            if layerType == "GFX_MOV":
-                writeFile = baseFolder+"/_MOV/"+sequence+"_"+shot+"_"+assetName+"_"+taskName+"_GFX_"+scriptVersion+".mov"
-
-            if layerType == "slapcomp_EXR":
-                writeFile = baseFolder+"/_EXR/COMP/"+sequence+"_"+shot+"_"+assetName+"_"+taskName+"_slapcomp_"+scriptVersion+".%04d.exr"
-            
-            if layerType == "GFX_EXR":
-                writeFile = baseFolder+"/_EXR/GFX/"+sequence+"_"+shot+"_"+assetName+"_"+taskName+"_GFX_"+scriptVersion+".%04d.exr"
-                
-        
-        if context == "library":
-            if layerType == "GFX":
-                writeFile = basepath+show+"/assets/"+assetName+"/aftereffects/"+taskName+"/__aep/__OUTPUT/export/"
-                writeFile = writeFile+assetName+"_"+taskName+"_"+scriptVersion+"/"+layer+"/library00gfx_"+assetName+"_"+taskName+"_layer_"+layer+"_"+mergeOp+"_"+scriptVersion+".#.exr"
-
-            if layerType == "slapcomp_MOV":
-                writeFile = basepath+show+"/assets/"+assetName+"/aftereffects/"+taskName+"/__aep/__OUTPUT/export/"
-                writeFile = writeFile+assetName+"_"+taskName+"_"+scriptVersion+"/_MOV/library00gfx_"+assetName+"_"+taskName+"_slapcomp_"+scriptVersion+".mov"
-
-            if layerType == "GFX_MOV":
-                writeFile = basepath+show+"/assets/"+assetName+"/aftereffects/"+taskName+"/__aep/__OUTPUT/export/"
-                writeFile = writeFile+assetName+"_"+taskName+"_"+scriptVersion+"/_MOV/library00gfx_"+assetName+"_"+taskName+"_GFX_"+scriptVersion+".mov"
-                
-            if layerType == "slapcomp_EXR":
-                writeFile = basepath+show+"/assets/"+assetName+"/aftereffects/"+taskName+"/__aep/__OUTPUT/export/"
-                writeFile = writeFile+assetName+"_"+taskName+"_"+scriptVersion+"/_EXR/COMP/library00gfx_"+assetName+"_"+taskName+"_slapcomp_"+scriptVersion+".#.exr"
-            
-            if layerType == "GFX_EXR":
-                writeFile = basepath+show+"/assets/"+assetName+"/aftereffects/"+taskName+"/__aep/__OUTPUT/export/"
-                writeFile = writeFile+assetName+"_"+taskName+"_"+scriptVersion+"/_EXR/GFX/library00gfx_"+assetName+"_"+taskName+"_GFX_"+scriptVersion+".#.exr"
-                    
-                    
-    if vendor == "ILM":
-        if context == "shot":
-            if layerType == "GFX":
-                writeFile = baseFolder+"/"+sequence+shot+"/graphicsLayers/"+layer+"/"+sequence+"."+shot+"."+assetName+"."+taskName+".layer."+layer+"."+mergeOp+"."+scriptVersion+".%04d.exr"
-            
-            if layerType == "slapcomp_MOV":
-                writeFile = baseFolder+"/"+sequence+shot+"/graphicsLayers/comped/"+sequence+"."+shot+"."+assetName+"."+taskName+".slapcomp."+scriptVersion+".mov"
-                
-            if layerType == "GFX_MOV":
-                writeFile = baseFolder+"/"+sequence+shot+"/graphicsLayers/"+sequence+"."+shot+"."+assetName+"."+taskName+".GFX."+scriptVersion+".mov"
-                
-            if layerType == "slapcomp_EXR":
-                writeFile = baseFolder+"/"+sequence+shot+"/graphicsLayers/comped/"+sequence+"."+shot+"."+assetName+"."+taskName+".slapcomp."+scriptVersion+".%04d.exr"
-                
-        
-        if context == "library":
-            if layerType == "GFX":
-                writeFile = basepath+show+"/assets/"+assetName+"/aftereffects/"+taskName+"/__aep/__OUTPUT/export/"
-                writeFile = writeFile+assetName+"_"+taskName+"_"+scriptVersion+"/graphicsLayers/"+layer+"/"+sequence+shot+"."+assetName+"."+taskName+".layer."+layer+"."+mergeOp+".gfx."+scriptVersion+".%04d.exr"
-                
-            if layerType == "slapcomp_MOV":
-                writeFile = basepath+show+"/assets/"+assetName+"/aftereffects/"+taskName+"/__aep/__OUTPUT/export/"
-                writeFile = writeFile+assetName+"_"+taskName+"_"+scriptVersion+"/graphicsLayers/comped/"+sequence+shot+"."+assetName+"."+taskName+".gfx."+scriptVersion+".mov"
-                
-            if layerType == "GFX_MOV":
-                writeFile = basepath+show+"/assets/"+assetName+"/aftereffects/"+taskName+"/__aep/__OUTPUT/export/"
-                writeFile = writeFile+assetName+"_"+taskName+"_"+scriptVersion+"/graphicsLayers/"+sequence+shot+"."+assetName+"."+taskName+".gfx."+scriptVersion+".mov"
-                    
-            if layerType == "slapcomp_EXR":
-                writeFile = basepath+show+"/assets/"+assetName+"/aftereffects/"+taskName+"/__aep/__OUTPUT/export/"
-                writeFile = writeFile+assetName+"_"+taskName+"_"+scriptVersion+"/graphicsLayers/comped/"+sequence+shot+"."+assetName+"."+taskName+".gfx."+scriptVersion+".#.exr"
-                    
-
-    if context == "plate":
-        ##find topnode name
-        n = nuke.selectedNode()
-        topnode_name = nuke.tcl("full_name [topnode %s]" % n.name())
-        topnode = nuke.toNode(topnode_name)
-        print "Found Topnode to be "+topnode.name()
-        writeFile = topnode["file"].getValue()
-        print "Topnode file: "+writeFile
-        writeFile = os.path.dirname(writeFile)
-        writeFile = writeFile+".mov"
-        n["file"].setValue(writeFile)
-        print "Plate write filename: "+writeFile
-    
     
     
     ## Set writeFile
-    n["file"].setValue(writeFile)
+    fp = os.path.normpath(fp)
+    fp = fp.replace("\\" , '/')
+    fp = fp.lower()
+    print "Export filename: "+fp
+    n["file"].setValue(fp)
 
 
     ## Codec/Data Profiles
     if (layerType == "GFX") or (layerType == "slapcomp_EXR"):
         n["file_type"].setValue("exr")
+        n["channels"].setValue("all")
         n["datatype"].setValue("16 bit half")
         n["compression"].setValue("Zip (1 scanline)")
-        n["autocrop"].setValue(1)
+        try:
+            n["autocrop"].setValue(1)
+        except:
+            pass
 
 
     if (layerType == "slapcomp_MOV") or (layerType == "GFX_MOV") or (context == "plate"):
         n["file_type"].setValue("mov")
         n["meta_encoder"].setValue("mov32")
-        if os.name == "nt":
-            n["meta_codec"].setValue(31)
-        if os.name == "posix":
-            n["meta_codec"].setValue(36)
+        n["meta_codec"].setValue("mjpa")
 
 
 
 
-
-#setWriteNode()
+#ilmExporter()
 
 
 
