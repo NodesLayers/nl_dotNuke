@@ -6,10 +6,12 @@ nuke.pluginAddPath('./python')
 nuke.pluginAddPath('./plugins')
 nuke.pluginAddPath('./luts')
 nuke.pluginAddPath('./icons')
+nuke.pluginAddPath('./Gizmos')
 
 nuke.pluginAddPath('./Plugins/KeenTools_10.5')
 nuke.pluginAddPath('./Plugins/cryptoMatte')
 nuke.pluginAddPath('./Plugins/animatedSnap3D')
+
 
 ######## Import Python Scripts
 import CheckOutputPath
