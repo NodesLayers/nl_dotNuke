@@ -1,0 +1,61 @@
+#ImagePlane Gizmo
+#Created by Brian Peluso
+#Updated 3_24_2012 to fix error pop up
+
+#! /Applications/Nuke6.3v4/NukeX6.3v4.app/../Nuke6.3v4.app/Contents/MacOS/Nuke6.3v4 -nx
+version 6.3 v4
+Gizmo {
+ inputs 2
+ lock_connections true
+ addUserKnob {20 User}
+ addUserKnob {41 can_focal l "cam focal length" T Card2.lens_in_focal}
+ addUserKnob {41 cam_haperture l "cam horiz aperture" T Card2.lens_in_haperture}
+ addUserKnob {41 distance l "distance from cam" T TransformGeo2.uniform_scale}
+}
+ Input {
+  inputs 0
+  name Cam
+  xpos 316
+  ypos -237
+  number 1
+ }
+ Input {
+  inputs 0
+  name Plate
+  xpos 497
+  ypos -291
+ }
+ Card2 {
+  rows 1
+  columns 1
+  scaling {1 1 0}
+  control_points {3 3 3 6 
+
+1 {-0.5 -0.5 0} 0 {0.1666666865 0 0} 0 {0 0 0} 0 {0 0.1666666865 0} 0 {0 0 0} 0 {0 0 0} 
+1 {0 -0.5 0} 0 {0.1666666716 0 0} 0 {-0.1666666716 0 0} 0 {0 0.1666666865 0} 0 {0 0 0} 0 {0.5 0 0} 
+1 {0.5 -0.5 0} 0 {0 0 0} 0 {-0.1666666865 0 0} 0 {0 0.1666666865 0} 0 {0 0 0} 0 {1 0 0} 
+1 {-0.5 0 0} 0 {0.1666666865 0 0} 0 {0 0 0} 0 {0 0.1666666716 0} 0 {0 -0.1666666716 0} 0 {0 0.5 0} 
+1 {0 0 0} 0 {0.1666666716 0 0} 0 {-0.1666666716 0 0} 0 {0 0.1666666716 0} 0 {0 -0.1666666716 0} 0 {0.5 0.5 0} 
+1 {0.5 0 0} 0 {0 0 0} 0 {-0.1666666865 0 0} 0 {0 0.1666666716 0} 0 {0 -0.1666666716 0} 0 {1 0.5 0} 
+1 {-0.5 0.5 0} 0 {0.1666666865 0 0} 0 {0 0 0} 0 {0 0 0} 0 {0 -0.1666666865 0} 0 {0 1 0} 
+1 {0 0.5 0} 0 {0.1666666716 0 0} 0 {-0.1666666716 0 0} 0 {0 0 0} 0 {0 -0.1666666865 0} 0 {0.5 1 0} 
+1 {0.5 0.5 0} 0 {0 0 0} 0 {-0.1666666865 0 0} 0 {0 0 0} 0 {0 -0.1666666865 0} 0 {1 1 0} }
+  name Card2
+  xpos 497
+  ypos -251
+ }
+ TransformGeo {
+  inputs 2
+  translate {0 0 -1}
+  uniform_scale 10
+  pivot {0 0 1}
+  name TransformGeo2
+  xpos 497
+  ypos -174
+ }
+ Output {
+  name Output1
+  xpos 497
+  ypos -74
+ }
+end_group

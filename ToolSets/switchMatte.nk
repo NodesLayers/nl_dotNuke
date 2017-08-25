@@ -1,0 +1,43 @@
+set cut_paste_input [stack 0]
+version 10.5 v4
+push $cut_paste_input
+push 0
+Group {
+ inputs 2
+ name switchMatte
+ selected true
+ xpos -13
+ ypos 854
+}
+ Input {
+  inputs 0
+  name alpha
+  xpos 27
+  ypos 528
+  number 1
+ }
+ Input {
+  inputs 0
+  name rgb
+  xpos 205
+  ypos 526
+ }
+ Copy {
+  inputs 2
+  from0 rgba.alpha
+  to0 rgba.alpha
+  name Copy1
+  xpos 118
+  ypos 611
+ }
+ Premult {
+  name Premult1
+  xpos 118
+  ypos 656
+ }
+ Output {
+  name Output1
+  xpos 118
+  ypos 756
+ }
+end_group

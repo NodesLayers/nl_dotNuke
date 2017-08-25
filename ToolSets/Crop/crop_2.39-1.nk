@@ -1,0 +1,66 @@
+set cut_paste_input [stack 0]
+version 10.5 v4
+push $cut_paste_input
+Group {
+name crop_239_1
+selected true
+xpos 7301
+ypos -4623
+addUserKnob {20 User l Crop}
+addUserKnob {41 mix T mult.mix}
+}
+Constant {
+inputs 0
+color 1
+format "2048 856 0 0 2048 856 1 2.39"
+name Constant2
+xpos 798
+ypos -655
+}
+Crop {
+box {0 0 2048 856}
+name Crop2
+xpos 798
+ypos -570
+}
+Transform {
+translate {0 147}
+center {1024 428}
+name Transform1
+xpos 798
+ypos -544
+}
+Constant {
+inputs 0
+format "2048 1152 0 0 2048 1152 1 2048x1152"
+name Constant3
+xpos 674
+ypos -658
+}
+Merge2 {
+inputs 2
+operation max
+name Merge3
+xpos 674
+ypos -544
+}
+Input {
+inputs 0
+name Input1
+xpos 528
+ypos -701
+}
+Merge2 {
+inputs 2
+operation multiply
+name mult
+selected true
+xpos 528
+ypos -544
+}
+Output {
+name Output1
+xpos 528
+ypos -444
+}
+end_group
